@@ -285,7 +285,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted">Faça upload dos arquivos CSV das lojas para análise. Você pode selecionar múltiplos arquivos. 
-                        <a href="docs/formato_csv.md" target="_blank">Ver formato esperado</a>.
+                        <a href="formato_csv.html" target="_blank">Ver formato esperado</a>.
                     </p>
                     
                     <div class="upload-area" id="dropArea">
@@ -683,17 +683,171 @@
                     // When all files are processed
                     if (filesProcessed === files.length) {
                         // Call the API endpoint
-                        fetch('/api/upload', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ files: filesData })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
+                        // Simulação do backend para o ambiente Vercel
+                        // Em um ambiente real, isso seria uma chamada API
+                        setTimeout(() => {
+                            // Processar os arquivos localmente
+                            const processedFiles = [];
+                            const validationErrors = [];
+                            
+                            filesData.forEach(fileData => {
+                                try {
+                                    // Decodificar conteúdo
+                                    const content = decodeURIComponent(escape(atob(fileData.content)));
+                                    
+                                    // Validar CSV básico
+                                    const lines = content.split('\n');
+                                    if (lines.length < 4) { // Cabeçalho + pelo menos 3 linhas
+                                        validationErrors.push(`Arquivo ${fileData.name} tem menos de 3 linhas de dados`);
+                                        processedFiles.push({
+                                            filename: fileData.name,
+                                            status: 'error',
+                                            message: 'Arquivo tem menos de 3 linhas de dados'
+                                        });
+                                        return;
+                                    }
+                                    
+                                    // Verificar cabeçalho
+                                    const header = lines[0].split(',');
+                                    const requiredColumns = ['produto', 'categoria', 'preço', 'frete', 'data', 'avaliação'];
+                                    const headerLower = header.map(h => h.toLowerCase());
+                                    
+                                    const missingColumns = [];
+                                    for (const col of requiredColumns) {
+                                        if (!headerLower.some(h => h.includes(col))) {
+                                            missingColumns.push(col);
+                                        }
+                                    }
+                                    
+                                    if (missingColumns.length > 0) {
+                                        validationErrors.push(`Arquivo ${fileData.name} não contém as colunas: ${missingColumns.join(', ')}`);
+                                        processedFiles.push({
+                                            filename: fileData.name,
+                                            status: 'error',
+                                            message: `Faltam colunas: ${missingColumns.join(', ')}`
+                                        });
+                                        return;
+                                    }
+                                    
+                                    // Processar dados básicos
+                                    const rows = [];
+                                    for (let i = 1; i < Math.min(lines.length, 6); i++) {
+                                        if (lines[i].trim()) {
+                                            rows.push(lines[i].split(','));
+                                        }
+                                    }
+                                    
+                                    // Calcular métricas básicas
+                                    const storeName = fileData.name.split('.')[0];
+                                    
+                                    // Extrair categorias e produtos para métricas
+                                    const categories = {};
+                                    const products = {};
+                                    
+                                    // Encontrar índices das colunas
+                                    const productIndex = headerLower.findIndex(h => h.includes('produto') && !h.includes('categoria'));
+                                    const categoryIndex = headerLower.findIndex(h => h.includes('categoria'));
+                                    
+                                    // Contar categorias e produtos
+                                    for (let i = 1; i < lines.length; i++) {
+                                        if (!lines[i].trim()) continue;
+                                        
+                                        const row = lines[i].split(',');
+                                        
+                                        if (categoryIndex >= 0 && row[categoryIndex]) {
+                                            const category = row[categoryIndex].trim();
+                                            categories[category] = (categories[category] || 0) + 1;
+                                        }
+                                        
+                                        if (productIndex >= 0 && row[productIndex]) {
+                                            const product = row[productIndex].trim();
+                                            products[product] = (products[product] || 0) + 1;
+                                        }
+                                    }
+                                    
+                                    // Ordenar categorias e produtos
+                                    const sortedCategories = Object.entries(categories).sort((a, b) => b[1] - a[1]);
+                                    const sortedProducts = Object.entries(products).sort((a, b) => b[1] - a[1]);
+                                    
+                                    // Obter top e bottom
+                                    const topCategories = sortedCategories.slice(0, 3);
+                                    const topProducts = sortedProducts.slice(0, 3);
+                                    const bottomProducts = sortedProducts.slice(-3).reverse();
+                                    
+                                    // Adicionar ao processedFiles
+                                    processedFiles.push({
+                                        filename: fileData.name,
+                                        rows: lines.length - 1,
+                                        columns: header.length,
+                                        column_names: header,
+                                        preview: rows,
+                                        metrics_preview: {
+                                            categorias_populares: topCategories.map(c => `${c[0]} (${c[1]})`).join(', '),
+                                            produtos_mais_vendidos: topProducts.map(p => `${p[0]} (${p[1]})`).join(', '),
+                                            produtos_menos_vendidos: bottomProducts.map(p => `${p[0]} (${p[1]})`).join(', ')
+                                        },
+                                        status: 'success',
+                                        message: 'Arquivo processado com sucesso'
+                                    });
+                                    
+                                    // Armazenar conteúdo na sessão
+                                    sessionData[storeName] = content;
+                                    
+                                } catch (error) {
+                                    validationErrors.push(`Erro ao processar ${fileData.name}: ${error.message}`);
+                                    processedFiles.push({
+                                        filename: fileData.name,
+                                        status: 'error',
+                                        message: `Erro ao processar: ${error.message}`
+                                    });
+                                }
+                            });
+                            
+                            // Simular resposta da API
+                            const response = {
+                                success: processedFiles.some(f => f.status === 'success'),
+                                message: `${processedFiles.filter(f => f.status === 'success').length} arquivo(s) processado(s) com sucesso`,
+                                warnings: validationErrors,
+                                files: processedFiles,
+                                session_data: sessionData
+                            };
+                            
+                            // Processar resposta
+                            const data = response;
                             if (data.success) {
                                 sessionData = data.session_data;
+                                uploadedFiles = data.files;
+                                updateFileListWithStatus(data.files);
+                                uploadStatus.textContent = data.message;
+                                uploadStatus.className = 'text-success';
+                                continueToMetrics.classList.remove('d-none');
+                                
+                                // Display warnings if any
+                                if (data.warnings && data.warnings.length > 0) {
+                                    validationErrors.classList.remove('d-none');
+                                    data.warnings.forEach(warning => {
+                                        const li = document.createElement('li');
+                                        li.textContent = warning;
+                                        validationErrorList.appendChild(li);
+                                    });
+                                }
+                            } else {
+                                uploadStatus.textContent = data.message || 'Erro ao processar arquivos.';
+                                uploadStatus.className = 'text-danger';
+                                updateFileListWithStatus(data.files || []);
+                                
+                                // Display errors
+                                if (data.warnings && data.warnings.length > 0) {
+                                    validationErrors.classList.remove('d-none');
+                                    data.warnings.forEach(error => {
+                                        const li = document.createElement('li');
+                                        li.textContent = error;
+                                        validationErrorList.appendChild(li);
+                                    });
+                                }
+                            }
+                        }, 1000); // Simular delay de rede
+                        // Código antigo removido para evitar erros
                                 uploadedFiles = data.files;
                                 updateFileListWithStatus(data.files);
                                 uploadStatus.textContent = data.message;
