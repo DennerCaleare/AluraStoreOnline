@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alura Store Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #7c4dff !important;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: white !important;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background-color: #f1f1f1;
+            border-bottom: none;
+            font-weight: 600;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .btn-primary {
+            background-color: #7c4dff;
+            border-color: #7c4dff;
+        }
+        .btn-primary:hover {
+            background-color: #6a3de8;
+            border-color: #6a3de8;
+        }
+        .btn-outline-primary {
+            color: #7c4dff;
+            border-color: #7c4dff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #7c4dff;
+            border-color: #7c4dff;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #7c4dff;
+            background-color: #f8f5ff;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #7c4dff;
+            margin-bottom: 15px;
+        }
+        .file-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .file-item.error {
+            border-left: 4px solid #dc3545;
+        }
+        .file-item.success {
+            border-left: 4px solid #198754;
+        }
+        .file-icon {
+            color: #7c4dff;
+            margin-right: 10px;
+        }
+        .metric-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .metric-card:hover {
+            border-color: #7c4dff;
+            box-shadow: 0 2px 5px rgba(124, 77, 255, 0.2);
+        }
+        .weight-control {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+        }
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        .step.active .step-number {
+            background-color: #7c4dff;
+            color: white;
+        }
+        .step.completed .step-number {
+            background-color: #28a745;
+            color: white;
+        }
+        .step-title {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .step.active .step-title {
+            color: #7c4dff;
+            font-weight: bold;
+        }
+        .step.completed .step-title {
+            color: #28a745;
+        }
+        .step-line {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: -1;
+        }
+        .step:first-child .step-line {
+            width: 50%;
+            left: 50%;
+        }
+        .step:last-child .step-line {
+            width: 50%;
+            right: 50%;
+        }
+        .result-card {
+            margin-bottom: 20px;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .store-rank {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .store-score {
+            font-size: 18px;
+        }
+        .progress {
+            height: 10px;
+            margin-bottom: 15px;
+        }
+        .metric-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .preview-tabs {
+            margin-bottom: 15px;
+        }
+        .nav-link {
+            color: #495057;
+        }
+        .nav-link.active {
+            color: #7c4dff !important;
+            font-weight: bold;
+        }
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        .badge-metric {
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: normal;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        .dropdown-item.active, .dropdown-item:active {
+            background-color: #7c4dff;
+        }
+        .alert-validation {
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        .metric-details-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .metric-details-list li {
+            margin-bottom: 3px;
+        }
+        .metric-details-list .badge {
+            font-size: 0.85em;
+        }
+        .export-button-container {
+            position: relative;
+        }
+        .export-spinner {
+            position: absolute;
+            right: -30px;
+            top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Alura Store Analyzer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span id="currentUser">Admin</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" id="logoutButton"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="step-indicator mb-4">
+            <div class="step active" id="step1">
+                <div class="step-line"></div>
+                <div class="step-number">1</div>
+                <div class="step-title">Upload de Arquivos</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-line"></div>
+                <div class="step-number">2</div>
+                <div class="step-title">Configurar Métricas</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-line"></div>
+                <div class="step-number">3</div>
+                <div class="step-title">Resultados</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Upload Files -->
+        <div id="uploadSection" class="mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Upload de Arquivos CSV</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Faça upload dos arquivos CSV das lojas para análise. Você pode selecionar múltiplos arquivos. 
+                        <a href="docs/formato_csv.md" target="_blank">Ver formato esperado</a>.
+                    </p>
+                    
+                    <div class="upload-area" id="dropArea">
+                        <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                        <h5>Arraste e solte arquivos CSV aqui</h5>
+                        <p class="text-muted">ou</p>
+                        <input type="file" id="fileInput" multiple accept=".csv" class="d-none">
+                        <button class="btn btn-primary" id="browseButton">Selecionar Arquivos</button>
+                    </div>
+                    
+                    <div id="uploadProgress" class="progress mt-3 d-none">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    
+                    <div id="fileList" class="mt-3">
+                        <!-- Files will be listed here -->
+                    </div>
+                    
+                    <div id="validationErrors" class="alert alert-danger alert-validation d-none" role="alert">
+                        <strong>Erros de Validação:</strong>
+                        <ul id="validationErrorList"></ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-3">
+                        <span id="uploadStatus"></span>
+                        <button id="continueToMetrics" class="btn btn-primary d-none">Continuar para Métricas</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Configure Metrics -->
+        <div id="metricsSection" class="mb-4 d-none">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Configurar Métricas e Pesos</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Selecione as métricas que deseja incluir na análise e defina o peso de cada uma.</p>
+                    
+                    <div id="metricsLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-2">Carregando métricas disponíveis...</p>
+                    </div>
+                    
+                    <div id="metricsList">
+                        <!-- Metrics will be listed here -->
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button id="backToUpload" class="btn btn-outline-primary">Voltar</button>
+                        <button id="analyzeData" class="btn btn-primary">Analisar Dados</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Results -->
+        <div id="resultsSection" class="mb-4 d-none">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Resultados da Análise</h5>
+                    <div class="export-button-container">
+                        <button id="exportResults" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar Relatório PDF
+                        </button>
+                        <div class="spinner-border spinner-border-sm text-primary export-spinner d-none" id="exportSpinner" role="status">
+                            <span class="visually-hidden">Exportando...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="resultsLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Analisando...</span>
+                        </div>
+                        <p class="mt-2">Analisando dados, por favor aguarde...</p>
+                    </div>
+                    
+                    <div id="resultsContent" class="d-none">
+                        <div class="alert alert-primary" role="alert">
+                            <h5 class="alert-heading">Recomendação</h5>
+                            <p id="recommendation">Com base na análise das métricas selecionadas, recomendamos vender a <strong id="recommendedStore">Loja X</strong>.</p>
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3">Ranking das Lojas</h6>
+                        <div id="storeRankings">
+                            <!-- Store rankings will be displayed here -->
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3">Detalhes por Métrica</h6>
+                        <div id="metricDetails">
+                            <!-- Metric details will be displayed here -->
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button id="backToMetrics" class="btn btn-outline-primary">Voltar</button>
+                        <button id="newAnalysis" class="btn btn-primary">Nova Análise</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Preview Modal -->
+        <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="previewModalLabel">Prévia dos Dados</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="previewLoading" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            <p class="mt-2">Carregando prévia dos dados...</p>
+                        </div>
+                        
+                        <ul class="nav nav-tabs preview-tabs" id="previewTabs">
+                            <!-- File tabs will be generated here -->
+                        </ul>
+                        
+                        <div class="tab-content" id="previewTabContent">
+                            <!-- Tab panes will be generated here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Verificar autenticação
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('aluraStoreLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Logout
+        document.getElementById('logoutButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('aluraStoreLoggedIn');
+            window.location.href = 'login.html';
+        });
+        
+        // Global variables
+        let sessionData = {};
+        let uploadedFiles = [];
+        let availableMetrics = [];
+        let previewModal = null;
+        let analysisResults = null; // Store analysis results for export
+
+        // DOM elements
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('fileInput');
+        const browseButton = document.getElementById('browseButton');
+        const fileList = document.getElementById('fileList');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const progressBar = uploadProgress.querySelector('.progress-bar');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const continueToMetrics = document.getElementById('continueToMetrics');
+        const validationErrors = document.getElementById('validationErrors');
+        const validationErrorList = document.getElementById('validationErrorList');
+        
+        const uploadSection = document.getElementById('uploadSection');
+        const metricsSection = document.getElementById('metricsSection');
+        const resultsSection = document.getElementById('resultsSection');
+        
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        
+        const metricsLoading = document.getElementById('metricsLoading');
+        const metricsList = document.getElementById('metricsList');
+        const backToUpload = document.getElementById('backToUpload');
+        const analyzeData = document.getElementById('analyzeData');
+        
+        const resultsLoading = document.getElementById('resultsLoading');
+        const resultsContent = document.getElementById('resultsContent');
+        const recommendation = document.getElementById('recommendation');
+        const recommendedStore = document.getElementById('recommendedStore');
+        const storeRankings = document.getElementById('storeRankings');
+        const metricDetails = document.getElementById('metricDetails');
+        const backToMetrics = document.getElementById('backToMetrics');
+        const newAnalysis = document.getElementById('newAnalysis');
+        const exportResults = document.getElementById('exportResults');
+        const exportSpinner = document.getElementById('exportSpinner');
+
+        // Initialize Bootstrap modal
+        document.addEventListener('DOMContentLoaded', function() {
+            previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            
+            // Definir métricas disponíveis
+            availableMetrics = [
+                {
+                    id: 'faturamento_total',
+                    name: 'Faturamento Total',
+                    description: 'Soma total do valor das vendas',
+                    default_weight: 5
+                },
+                {
+                    id: 'media_avaliacao',
+                    name: 'Média de Avaliação',
+                    description: 'Média das avaliações dos clientes',
+                    default_weight: 4
+                },
+                {
+                    id: 'categorias_populares',
+                    name: 'Categorias Populares',
+                    description: 'Análise das categorias mais vendidas',
+                    default_weight: 3
+                },
+                {
+                    id: 'produtos_mais_vendidos',
+                    name: 'Produtos Mais Vendidos',
+                    description: 'Análise dos produtos com maior volume de vendas',
+                    default_weight: 3
+                },
+                {
+                    id: 'produtos_menos_vendidos',
+                    name: 'Produtos Menos Vendidos',
+                    description: 'Análise dos produtos com menor volume de vendas',
+                    default_weight: 2
+                },
+                {
+                    id: 'custo_medio_frete',
+                    name: 'Custo Médio do Frete',
+                    description: 'Média dos valores de frete',
+                    default_weight: 3
+                }
+            ];
+        });
+
+        // Event listeners for file upload
+        browseButton.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+        
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('border-primary');
+        });
+        
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('border-primary');
+        });
+        
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('border-primary');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // Navigation between steps
+        continueToMetrics.addEventListener('click', () => {
+            uploadSection.classList.add('d-none');
+            metricsSection.classList.remove('d-none');
+            step1.classList.remove('active');
+            step1.classList.add('completed');
+            step2.classList.add('active');
+            
+            // Display metrics
+            displayMetrics(availableMetrics);
+            metricsLoading.classList.add('d-none');
+        });
+        
+        backToUpload.addEventListener('click', () => {
+            metricsSection.classList.add('d-none');
+            uploadSection.classList.remove('d-none');
+            step2.classList.remove('active');
+            step1.classList.remove('completed');
+            step1.classList.add('active');
+        });
+        
+        analyzeData.addEventListener('click', () => {
+            metricsSection.classList.add('d-none');
+            resultsSection.classList.remove('d-none');
+            step2.classList.remove('active');
+            step2.classList.add('completed');
+            step3.classList.add('active');
+            
+            // Analyze data with selected metrics and weights
+            analyzeDataWithMetrics();
+        });
+        
+        backToMetrics.addEventListener('click', () => {
+            resultsSection.classList.add('d-none');
+            metricsSection.classList.remove('d-none');
+            step3.classList.remove('active');
+            step2.classList.remove('completed');
+            step2.classList.add('active');
+        });
+        
+        newAnalysis.addEventListener('click', () => {
+            // Reset everything and start over
+            resetApplication();
+        });
+        
+        exportResults.addEventListener('click', () => {
+            // Export results as PDF or CSV
+            exportResultsAsReport();
+        });
+
+        // Handle file selection
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            // Filter only CSV files
+            const csvFiles = Array.from(files).filter(file => file.name.toLowerCase().endsWith('.csv'));
+            
+            if (csvFiles.length === 0) {
+                uploadStatus.textContent = 'Por favor, selecione apenas arquivos CSV.';
+                uploadStatus.className = 'text-danger';
+                return;
+            }
+            
+            // Display selected files
+            displaySelectedFiles(csvFiles);
+            
+            // Upload files
+            uploadFiles(csvFiles);
+        }
+
+        // Display selected files in the UI
+        function displaySelectedFiles(files) {
+            fileList.innerHTML = '';
+            validationErrors.classList.add('d-none');
+            validationErrorList.innerHTML = '';
+            
+            files.forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.id = `file-${file.name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                fileItem.innerHTML = `
+                    <div>
+                        <i class="bi bi-file-earmark-text file-icon"></i>
+                        <span>${file.name}</span>
+                        <span class="text-muted ms-2">(${formatFileSize(file.size)})</span>
+                    </div>
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+            
+            uploadProgress.classList.remove('d-none');
+        }
+
+        // Format file size for display
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            else return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Upload files to the server
+        function uploadFiles(files) {
+            const filesData = [];
+            let filesProcessed = 0;
+            
+            // Show progress
+            progressBar.style.width = '0%';
+            uploadStatus.textContent = 'Processando arquivos...';
+            uploadStatus.className = 'text-primary';
+            continueToMetrics.classList.add('d-none');
+            
+            // Process each file
+            files.forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const base64Content = btoa(unescape(encodeURIComponent(content))); // Handle UTF-8
+                    
+                    filesData.push({
+                        name: file.name,
+                        content: base64Content
+                    });
+                    
+                    filesProcessed++;
+                    progressBar.style.width = (filesProcessed / files.length * 100) + '%';
+                    
+                    // When all files are processed
+                    if (filesProcessed === files.length) {
+                        // Call the API endpoint
+                        fetch('/api/upload', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ files: filesData })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                sessionData = data.session_data;
+                                uploadedFiles = data.files;
+                                updateFileListWithStatus(data.files);
+                                uploadStatus.textContent = data.message;
+                                uploadStatus.className = 'text-success';
+                                continueToMetrics.classList.remove('d-none');
+                                
+                                // Display warnings if any
+                                if (data.warnings && data.warnings.length > 0) {
+                                    validationErrors.classList.remove('d-none');
+                                    data.warnings.forEach(warning => {
+                                        const li = document.createElement('li');
+                                        li.textContent = warning;
+                                        validationErrorList.appendChild(li);
+                                    });
+                                }
+                            } else {
+                                uploadStatus.textContent = data.message || 'Erro ao processar arquivos.';
+                                uploadStatus.className = 'text-danger';
+                                updateFileListWithStatus(data.files || []);
+                                
+                                // Display errors
+                                if (data.errors && data.errors.length > 0) {
+                                    validationErrors.classList.remove('d-none');
+                                    data.errors.forEach(error => {
+                                        const li = document.createElement('li');
+                                        li.textContent = error;
+                                        validationErrorList.appendChild(li);
+                                    });
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error uploading files:', error);
+                            uploadStatus.textContent = 'Erro de comunicação com o servidor.';
+                            uploadStatus.className = 'text-danger';
+                        });
+                    }
+                };
+                
+                reader.onerror = function() {
+                    uploadStatus.textContent = `Erro ao ler o arquivo ${file.name}`;
+                    uploadStatus.className = 'text-danger';
+                };
+                
+                reader.readAsText(file, 'UTF-8'); // Specify UTF-8 encoding
+            });
+        }
+
+        // Update file list with upload status and metrics preview
+        function updateFileListWithStatus(processedFiles) {
+            processedFiles.forEach(fileData => {
+                const fileItemId = `file-${fileData.filename.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                const item = document.getElementById(fileItemId);
+                
+                if (!item) return;
+                
+                const spinner = item.querySelector('.spinner-border');
+                if (spinner) spinner.remove();
+                
+                const statusIcon = document.createElement('i');
+                statusIcon.className = fileData.status === 'success' ? 'bi bi-check-circle text-success' : 'bi bi-x-circle text-danger';
+                
+                const actionsDiv = document.createElement('div');
+                actionsDiv.appendChild(statusIcon);
+                
+                // Add message tooltip
+                if (fileData.message) {
+                    statusIcon.setAttribute('data-bs-toggle', 'tooltip');
+                    statusIcon.setAttribute('title', fileData.message);
+                    new bootstrap.Tooltip(statusIcon);
+                }
+                
+                // Add preview button for successful files
+                if (fileData.status === 'success') {
+                    item.classList.add('success');
+                    const previewButton = document.createElement('button');
+                    previewButton.className = 'btn btn-sm btn-outline-primary ms-2';
+                    previewButton.innerHTML = '<i class="bi bi-eye"></i>';
+                    previewButton.setAttribute('data-bs-toggle', 'tooltip');
+                    previewButton.setAttribute('title', 'Visualizar Dados');
+                    previewButton.addEventListener('click', () => {
+                        showFilePreview(fileData.filename);
+                    });
+                    actionsDiv.appendChild(previewButton);
+                    new bootstrap.Tooltip(previewButton);
+                    
+                    // Add metrics preview button
+                    const metricsButton = document.createElement('button');
+                    metricsButton.className = 'btn btn-sm btn-outline-secondary ms-2';
+                    metricsButton.innerHTML = '<i class="bi bi-bar-chart-line"></i>';
+                    metricsButton.setAttribute('data-bs-toggle', 'tooltip');
+                    metricsButton.setAttribute('title', 'Visualizar Métricas');
+                    metricsButton.addEventListener('click', () => {
+                        showMetricsPreview(fileData);
+                    });
+                    actionsDiv.appendChild(metricsButton);
+                    new bootstrap.Tooltip(metricsButton);
+                } else {
+                    item.classList.add('error');
+                }
+                
+                // Replace spinner with actions
+                const existingActions = item.querySelector('div:last-child');
+                if (existingActions) {
+                    existingActions.replaceWith(actionsDiv);
+                }
+            });
+        }
+
+        // Show metrics preview in modal
+        function showMetricsPreview(fileData) {
+            const modalTitle = document.getElementById('previewModalLabel');
+            modalTitle.textContent = `Prévia de Métricas - ${fileData.filename}`;
+            
+            // Show modal
+            previewModal.show();
+            
+            // Show loading
+            document.getElementById('previewLoading').classList.remove('d-none');
+            document.getElementById('previewTabs').innerHTML = '';
+            document.getElementById('previewTabContent').innerHTML = '';
+            
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('previewLoading').classList.add('d-none');
+                
+                // Create tab
+                const previewTabs = document.getElementById('previewTabs');
+                const previewTabContent = document.getElementById('previewTabContent');
+                
+                const tabId = `preview-metrics-${fileData.filename.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                const tab = document.createElement('li');
+                tab.className = 'nav-item';
+                tab.innerHTML = `
+                    <a class="nav-link active" id="${tabId}-tab" data-bs-toggle="tab" href="#${tabId}" role="tab" aria-controls="${tabId}" aria-selected="true">
+                        Métricas Principais
+                    </a>
+                `;
+                previewTabs.appendChild(tab);
+                
+                // Create tab content
+                const tabContent = document.createElement('div');
+                tabContent.className = 'tab-pane fade show active';
+                tabContent.id = tabId;
+                tabContent.setAttribute('role', 'tabpanel');
+                tabContent.setAttribute('aria-labelledby', `${tabId}-tab`);
+                
+                // Create metrics preview
+                const metricsPreview = document.createElement('div');
+                metricsPreview.className = 'card';
+                
+                let metricsHTML = `
+                    <div class="card-body">
+                        <h6 class="card-title">Categorias Populares</h6>
+                        <p>${fileData.metrics_preview.categorias_populares || 'Não disponível'}</p>
+                        
+                        <h6 class="card-title mt-4">Produtos Mais Vendidos</h6>
+                        <p>${fileData.metrics_preview.produtos_mais_vendidos || 'Não disponível'}</p>
+                        
+                        <h6 class="card-title mt-4">Produtos Menos Vendidos</h6>
+                        <p>${fileData.metrics_preview.produtos_menos_vendidos || 'Não disponível'}</p>
+                    </div>
+                `;
+                
+                metricsPreview.innerHTML = metricsHTML;
+                tabContent.appendChild(metricsPreview);
+                previewTabContent.appendChild(tabContent);
+            }, 500);
+        }
+
+        // Show file preview in modal
+        function showFilePreview(filename) {
+            // Show modal
+            previewModal.show();
+            
+            // Show loading
+            document.getElementById('previewLoading').classList.remove('d-none');
+            document.getElementById('previewTabs').innerHTML = '';
+            document.getElementById('previewTabContent').innerHTML = '';
+            
+            // Find file data
+            const fileData = uploadedFiles.find(f => f.filename === filename);
+            if (!fileData) return;
+            
+            // Process CSV preview
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('previewLoading').classList.add('d-none');
+                
+                // Create tab
+                const previewTabs = document.getElementById('previewTabs');
+                const previewTabContent = document.getElementById('previewTabContent');
+                
+                const tabId = `preview-${filename.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                const tab = document.createElement('li');
+                tab.className = 'nav-item';
+                tab.innerHTML = `
+                    <a class="nav-link active" id="${tabId}-tab" data-bs-toggle="tab" href="#${tabId}" role="tab" aria-controls="${tabId}" aria-selected="true">
+                        ${filename}
+                    </a>
+                `;
+                previewTabs.appendChild(tab);
+                
+                // Create tab content
+                const tabContent = document.createElement('div');
+                tabContent.className = 'tab-pane fade show active';
+                tabContent.id = tabId;
+                tabContent.setAttribute('role', 'tabpanel');
+                tabContent.setAttribute('aria-labelledby', `${tabId}-tab`);
+                
+                // Create table
+                const table = document.createElement('div');
+                table.className = 'table-responsive';
+                
+                let tableHTML = '<table class="table table-striped table-bordered table-sm">';
+                
+                // Header
+                tableHTML += '<thead><tr>';
+                fileData.column_names.forEach(column => {
+                    tableHTML += `<th>${column}</th>`;
+                });
+                tableHTML += '</tr></thead>';
+                
+                // Body
+                tableHTML += '<tbody>';
+                fileData.preview.forEach(row => {
+                    tableHTML += '<tr>';
+                    row.forEach(cell => {
+                        tableHTML += `<td>${cell}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                });
+                tableHTML += '</tbody>';
+                
+                tableHTML += '</table>';
+                
+                table.innerHTML = tableHTML;
+                tabContent.appendChild(table);
+                previewTabContent.appendChild(tabContent);
+            }, 500);
+        }
+
+        // Display metrics in the UI
+        function displayMetrics(metrics) {
+            metricsList.innerHTML = '';
+            
+            metrics.forEach(metric => {
+                const metricCard = document.createElement('div');
+                metricCard.className = 'metric-card';
+                metricCard.innerHTML = `
+                    <div class="form-check d-flex justify-content-between align-items-center">
+                        <div>
+                            <input class="form-check-input" type="checkbox" id="metric-${metric.id}" checked>
+                            <label class="form-check-label" for="metric-${metric.id}">
+                                <strong>${metric.name}</strong>
+                            </label>
+                            <p class="text-muted mb-0 small">${metric.description}</p>
+                        </div>
+                        <span class="badge bg-primary">Peso: <span id="weight-value-${metric.id}">${metric.default_weight}</span></span>
+                    </div>
+                    <div class="weight-control">
+                        <label for="weight-${metric.id}" class="form-label small text-muted">Importância (1-10)</label>
+                        <input type="range" class="form-range" min="1" max="10" value="${metric.default_weight}" id="weight-${metric.id}" 
+                            oninput="document.getElementById('weight-value-${metric.id}').textContent = this.value">
+                    </div>
+                `;
+                metricsList.appendChild(metricCard);
+            });
+        }
+
+        // Analyze data with selected metrics and weights
+        function analyzeDataWithMetrics() {
+            resultsLoading.classList.remove('d-none');
+            resultsContent.classList.add('d-none');
+            
+            // Get selected metrics and weights
+            const selectedMetrics = [];
+            
+            availableMetrics.forEach(metric => {
+                const checkbox = document.getElementById(`metric-${metric.id}`);
+                const weightSlider = document.getElementById(`weight-${metric.id}`);
+                
+                if (checkbox && checkbox.checked) {
+                    selectedMetrics.push({
+                        id: metric.id,
+                        name: metric.name,
+                        weight: parseInt(weightSlider.value)
+                    });
+                }
+            });
+            
+            // Call the API endpoint
+            fetch('/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_data: sessionData,
+                    metrics: selectedMetrics
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    analysisResults = data.results; // Store results for export
+                    displayResults(analysisResults);
+                    resultsLoading.classList.add('d-none');
+                    resultsContent.classList.remove('d-none');
+                } else {
+                    console.error('Error analyzing data:', data.error);
+                    resultsLoading.innerHTML = `<p class="text-danger">Erro ao analisar dados: ${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error analyzing data:', error);
+                resultsLoading.innerHTML = `<p class="text-danger">Erro de comunicação com o servidor durante a análise.</p>`;
+            });
+        }
+
+        // Display analysis results
+        function displayResults(results) {
+            // Set recommendation
+            recommendedStore.textContent = results.recommendedStore;
+            
+            // Display store rankings
+            storeRankings.innerHTML = '';
+            const maxScore = Math.max(...results.storeRankings.map(s => s.score));
+            
+            results.storeRankings.forEach(store => {
+                const rankCard = document.createElement('div');
+                rankCard.className = 'card result-card';
+                const percentage = maxScore > 0 ? (store.score / maxScore) * 100 : 0;
+                
+                rankCard.innerHTML = `
+                    <div class="card-body">
+                        <div class="result-header">
+                            <div>
+                                <h6>${store.name}</h6>
+                                <div class="text-muted small">Ranking #${store.rank}</div>
+                            </div>
+                            <div class="store-score">${store.score.toFixed(1)} pontos</div>
+                        </div>
+                        <div class="progress mt-2">
+                            <div class="progress-bar ${store.rank === 1 ? 'bg-danger' : 'bg-success'}" role="progressbar" 
+                                style="width: ${percentage}%" 
+                                aria-valuenow="${store.score}" aria-valuemin="0" aria-valuemax="${maxScore}"></div>
+                        </div>
+                    </div>
+                `;
+                storeRankings.appendChild(rankCard);
+            });
+            
+            // Display metric details
+            metricDetails.innerHTML = '';
+            
+            results.metricDetails.forEach(metric => {
+                const metricCard = document.createElement('div');
+                metricCard.className = 'card mb-3';
+                
+                let metricContent = `
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">${metric.name}</h6>
+                        <span class="badge bg-secondary">Peso: ${metric.weight}</span>
+                    </div>
+                    <div class="card-body">
+                `;
+                
+                // Verificar se é uma métrica com detalhes especiais
+                if (['categorias_populares', 'produtos_mais_vendidos', 'produtos_menos_vendidos'].includes(metric.id)) {
+                    metricContent += '<div class="row">';
+                    metric.values.forEach(value => {
+                        metricContent += `<div class="col-md-6 mb-3"><h6>${value.store}</h6>`;
+                        
+                        if (value.details && value.details.length > 0) {
+                            metricContent += '<ul class="metric-details-list">';
+                            value.details.forEach(detail => {
+                                const itemName = detail.categoria || detail.produto;
+                                const count = detail.contagem;
+                                const percentage = detail.porcentagem;
+                                metricContent += `
+                                    <li>
+                                        <span class="badge badge-metric py-1 px-2">
+                                            ${itemName} <span class="badge bg-secondary ms-1">${count}</span> (${percentage}%)
+                                        </span>
+                                    </li>
+                                `;
+                            });
+                            metricContent += '</ul>';
+                        } else {
+                            metricContent += '<p class="text-muted small">Dados não disponíveis</p>';
+                        }
+                        metricContent += '</div>'; // Close col-md-6
+                    });
+                    metricContent += '</div>'; // Close row
+                } else {
+                    // Exibir em formato de tabela para métricas numéricas
+                    metricContent += `
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Loja</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    metric.values.forEach(value => {
+                        let formattedValue = value.value;
+                        if (typeof value.value === 'number') {
+                            formattedValue = value.value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        }
+                        metricContent += `
+                            <tr>
+                                <td>${value.store}</td>
+                                <td>${formattedValue}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    metricContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                metricContent += '</div>';
+                
+                metricCard.innerHTML = metricContent;
+                metricDetails.appendChild(metricCard);
+            });
+        }
+
+        // Export results as report
+        function exportResultsAsReport() {
+            if (!analysisResults) {
+                alert('Nenhum resultado de análise disponível para exportar.');
+                return;
+            }
+            
+            exportSpinner.classList.remove('d-none');
+            exportResults.disabled = true;
+            
+            fetch('/api/export_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    analysis_results: analysisResults,
+                    session_data: sessionData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Decode base64 PDF and trigger download
+                    const byteCharacters = atob(data.pdf_base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: 'application/pdf'});
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = data.filename || 'relatorio_alura_store.pdf';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert(`Erro ao gerar PDF: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error exporting PDF:', error);
+                alert('Erro de comunicação ao gerar o PDF.');
+            })
+            .finally(() => {
+                exportSpinner.classList.add('d-none');
+                exportResults.disabled = false;
+            });
+        }
+
+        // Reset application for new analysis
+        function resetApplication() {
+            // Reset global variables
+            sessionData = {};
+            uploadedFiles = [];
+            analysisResults = null;
+            
+            // Reset UI
+            fileList.innerHTML = '';
+            uploadProgress.classList.add('d-none');
+            progressBar.style.width = '0%';
+            uploadStatus.textContent = '';
+            continueToMetrics.classList.add('d-none');
+            validationErrors.classList.add('d-none');
+            validationErrorList.innerHTML = '';
+            
+            metricsList.innerHTML = '';
+            
+            // Reset steps
+            uploadSection.classList.remove('d-none');
+            metricsSection.classList.add('d-none');
+            resultsSection.classList.add('d-none');
+            
+            step1.classList.add('active');
+            step1.classList.remove('completed');
+            step2.classList.remove('active', 'completed');
+            step3.classList.remove('active', 'completed');
+        }
+    </script>
+</body>
+</html>

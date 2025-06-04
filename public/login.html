@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Alura Store Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        .card-header {
+            background-color: #7c4dff;
+            color: white;
+            text-align: center;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 20px;
+            border-bottom: none;
+        }
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: #7c4dff;
+            border-color: #7c4dff;
+            padding: 10px;
+        }
+        .btn-primary:hover {
+            background-color: #6a3de8;
+            border-color: #6a3de8;
+        }
+        .form-control:focus {
+            border-color: #7c4dff;
+            box-shadow: 0 0 0 0.25rem rgba(124, 77, 255, 0.25);
+        }
+        .alert {
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-line logo-icon"></i>
+                <h4>Alura Store Analyzer</h4>
+                <p class="mb-0">Análise de Desempenho de Lojas</p>
+            </div>
+            <div class="card-body p-4">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuário</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Senha</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" class="form-control" id="password" placeholder="Digite sua senha" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                </form>
+                
+                <div class="alert alert-danger" role="alert" id="loginError">
+                    Usuário ou senha incorretos. Tente novamente.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Verificar credenciais (admin/admin)
+            if (username === 'admin' && password === 'admin') {
+                // Armazenar estado de login
+                localStorage.setItem('aluraStoreLoggedIn', 'true');
+                
+                // Redirecionar para a página principal
+                window.location.href = 'index.html';
+            } else {
+                // Mostrar erro
+                document.getElementById('loginError').style.display = 'block';
+                
+                // Limpar senha
+                document.getElementById('password').value = '';
+            }
+        });
+        
+        // Verificar se já está logado
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('aluraStoreLoggedIn') === 'true') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
