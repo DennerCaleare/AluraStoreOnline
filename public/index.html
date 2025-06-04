@@ -529,7 +529,10 @@
         });
 
         // Event listeners for file upload
-        browseButton.addEventListener('click', () => fileInput.click());
+        browseButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+        });
         
         fileInput.addEventListener('change', (e) => {
             handleFiles(e.target.files);
